@@ -1,82 +1,150 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>ESP32 Control Panel</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      text-align: center;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      margin: 20px auto;
-      width: 300px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
-    button {
-      width: 120px;
-      padding: 10px;
-      margin: 5px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .on { background: #4CAF50; color: white; }
-    .off { background: #f44336; color: white; }
-  </style>
+<meta charset="UTF-8">
+<title>ĐỒ ÁN CHĂN NUÔI GÀ THÔNG MINH</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+}
+header {
+    background: #2c3e50;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+nav {
+    background: #34495e;
+    padding: 10px;
+}
+nav button {
+    background: #3498db;
+    border: none;
+    color: white;
+    padding: 8px 14px;
+    margin-right: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.container {
+    padding: 20px;
+}
+.row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 6px;
+    flex: 1;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.card h3 {
+    margin-top: 0;
+}
+.big {
+    font-size: 28px;
+    color: #2980b9;
+    font-weight: bold;
+    text-align: center;
+}
+.status-ok {
+    background: #eafaf1;
+    border: 1px solid #2ecc71;
+    color: #2ecc71;
+    text-align: center;
+    padding: 20px;
+    font-size: 18px;
+}
+.controls button {
+    padding: 10px;
+    margin: 5px;
+    width: 120px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+}
+.on { background: #27ae60; }
+.off { background: #c0392b; }
+</style>
 </head>
+
 <body>
 
-  <h1>🌱 ESP32 WEB CONTROL</h1>
+<header>ĐỒ ÁN CHĂN NUÔI GÀ THÔNG MINH</header>
 
-  <div class="card">
-    <h3>🌡️ Nhiệt độ</h3>
-    <p id="temp">-- °C</p>
+<nav>
+    <button>Giám sát</button>
+    <button>Bảng dữ liệu</button>
+</nav>
 
-    <h3>💧 Độ ẩm</h3>
-    <p id="humi">-- %</p>
-  </div>
+<div class="container">
 
-  <div class="card">
-    <h3>💡 LED</h3>
-    <button class="on" onclick="control('led',1)">ON</button>
-    <button class="off" onclick="control('led',0)">OFF</button>
-  </div>
+    <!-- MÔI TRƯỜNG -->
+    <div class="row">
+        <div class="card">
+            <h3>🌡 Nhiệt độ</h3>
+            <div class="big" id="temp">0 °C</div>
+        </div>
+        <div class="card">
+            <h3>💧 Độ ẩm</h3>
+            <div class="big" id="humi">0 %</div>
+        </div>
+    </div>
 
-  <div class="card">
-    <h3>🚿 PUMP</h3>
-    <button class="on" onclick="control('pump',1)">ON</button>
-    <button class="off" onclick="control('pump',0)">OFF</button>
-  </div>
+    <!-- GÀ -->
+    <div class="card">
+        <h3>🐔 Gà hiện tại</h3>
+        <p>ID: --</p>
+        <p><b>0 Kg</b></p>
+        <p>Trạng thái: Chưa có dữ liệu</p>
+    </div>
 
-  <div class="card">
-    <h3>🚪 GATE</h3>
-    <button class="on" onclick="control('gate',1)">OPEN</button>
-    <button class="off" onclick="control('gate',0)">CLOSE</button>
-  </div>
+    <!-- CẢNH BÁO -->
+    <div class="card status-ok">
+        ✅ Tất cả bình thường<br>
+        Không có cảnh báo nào lúc này
+    </div>
+
+    <!-- ĐIỀU KHIỂN TEST -->
+    <div class="card">
+        <h3>⚙ Điều khiển (TEST)</h3>
+        <div class="controls">
+            <button class="on" onclick="control('gate',1)">Mở cổng</button>
+            <button class="off" onclick="control('gate',0)">Đóng cổng</button>
+
+            <button class="on" onclick="control('pump',1)">Bật bơm</button>
+            <button class="off" onclick="control('pump',0)">Tắt bơm</button>
+
+            <button class="on" onclick="control('led',1)">Bật đèn</button>
+            <button class="off" onclick="control('led',0)">Tắt đèn</button>
+        </div>
+    </div>
+
+</div>
 
 <script>
-const SERVER = "";
+const SERVER = "https://esp32-render-server-p8o1.onrender.com";
 
 function loadData() {
-  fetch(SERVER + "/data")
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("temp").innerText = data.temp + " °C";
-      document.getElementById("humi").innerText = data.humi + " %";
-    });
+    fetch(SERVER + "/data")
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("temp").innerText = data.temp + " °C";
+            document.getElementById("humi").innerText = data.humi + " %";
+        });
 }
 
 function control(device, value) {
-  fetch(`${SERVER}/control?${device}=${value}`)
-    .then(res => res.json())
-    .then(data => {
-      console.log("Updated:", data);
-      loadData();
-    });
+    fetch(`${SERVER}/control?${device}=${value}`)
+        .then(() => loadData());
 }
 
 setInterval(loadData, 2000);
