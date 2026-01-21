@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>ESP32 Control Panel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      text-align: center;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      margin: 20px auto;
+      width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    button {
+      width: 120px;
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .on { background: #4CAF50; color: white; }
+    .off { background: #f44336; color: white; }
+  </style>
+</head>
+<body>
+
+  <h1>🌱 ESP32 WEB CONTROL</h1>
+
+  <div class="card">
+    <h3>🌡️ Nhiệt độ</h3>
+    <p id="temp">-- °C</p>
+
+    <h3>💧 Độ ẩm</h3>
+    <p id="humi">-- %</p>
+  </div>
+
+  <div class="card">
+    <h3>💡 LED</h3>
+    <button class="on" onclick="control('led',1)">ON</button>
+    <button class="off" onclick="control('led',0)">OFF</button>
+  </div>
+
+  <div class="card">
+    <h3>🚿 PUMP</h3>
+    <button class="on" onclick="control('pump',1)">ON</button>
+    <button class="off" onclick="control('pump',0)">OFF</button>
+  </div>
+
+  <div class="card">
+    <h3>🚪 GATE</h3>
+    <button class="on" onclick="control('gate',1)">OPEN</button>
+    <button class="off" onclick="control('gate',0)">CLOSE</button>
+  </div>
+
+<script>
+const SERVER = "";
+
+function loadData() {
+  fetch(SERVER + "/data")
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("temp").innerText = data.temp + " °C";
+      document.getElementById("humi").innerText = data.humi + " %";
+    });
+}
+
+function control(device, value) {
+  fetch(`${SERVER}/control?${device}=${value}`)
+    .then(res => res.json())
+    .then(data => {
+      console.log("Updated:", data);
+      loadData();
+    });
+}
+
+setInterval(loadData, 2000);
+loadData();
+</script>
+
+</body>
+</html>
