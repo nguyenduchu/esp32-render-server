@@ -12,7 +12,7 @@
       background: #f2f4f6;
     }
 
-    /* ===== HEADER ===== */
+    /* HEADER */
     .header {
       background: #2c3e50;
       color: white;
@@ -22,21 +22,21 @@
       font-weight: bold;
     }
 
-    /* ===== MENU ===== */
+    /* MENU */
     .menu {
-      display: flex;
       background: #34495e;
       padding: 10px;
+      display: flex;
       gap: 10px;
     }
 
     .menu button {
-      background: #3498db;
       border: none;
+      padding: 10px 18px;
       color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
       cursor: pointer;
+      border-radius: 5px;
+      background: #3498db;
       font-size: 15px;
     }
 
@@ -44,69 +44,101 @@
       background: #1abc9c;
     }
 
-    /* ===== CONTENT ===== */
+    /* CONTENT */
     .container {
       padding: 20px;
-      max-width: 1200px;
-      margin: auto;
     }
 
-    .row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
+    .section {
       background: white;
       border-radius: 10px;
-      padding: 20px;
+      padding: 15px;
+      margin-bottom: 20px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    .card h3 {
-      margin-top: 0;
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    /* CARDS */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .card {
+      background: #ecf0f1;
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-size: 18px;
     }
 
-    .value {
-      font-size: 42px;
+    .card span.value {
+      font-size: 32px;
       font-weight: bold;
-      color: #3498db;
-      text-align: right;
+      color: #2980b9;
     }
 
-    /* ===== BUTTON TEST ===== */
-    .btn {
-      padding: 10px 15px;
-      margin: 5px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      color: white;
+    /* WARNING */
+    .warning {
+      border: 2px solid #2ecc71;
+      background: #eaffea;
+      text-align: center;
+      padding: 30px;
+      border-radius: 10px;
+      color: #2ecc71;
+      font-size: 18px;
+      font-weight: bold;
     }
 
-    .on { background: #27ae60; }
-    .off { background: #c0392b; }
-
-    /* ===== TABLE ===== */
+    /* TABLE */
     table {
       width: 100%;
       border-collapse: collapse;
     }
 
-    th, td {
+    table thead {
+      background: #3498db;
+      color: white;
+    }
+
+    table th, table td {
       padding: 10px;
       border: 1px solid #ddd;
       text-align: center;
     }
 
-    th {
-      background: #3498db;
+    .table-actions {
+      margin-bottom: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .table-actions button {
+      border: none;
+      padding: 8px 14px;
+      border-radius: 5px;
+      cursor: pointer;
       color: white;
     }
 
-    /* ===== HIDE ===== */
+    .btn-green { background: #2ecc71; }
+    .btn-red { background: #e74c3c; }
+
+    input[type="text"] {
+      padding: 8px;
+      width: 250px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
     .hidden {
       display: none;
     }
@@ -120,97 +152,107 @@
   </div>
 
   <div class="menu">
-    <button id="btnMonitor" class="active" onclick="showMonitor()">Giám sát</button>
-    <button id="btnTable" onclick="showTable()">Bảng dữ liệu</button>
+    <button id="btnGiamSat" class="active" onclick="showTab('giamSat')">Giám sát</button>
+    <button id="btnBangDuLieu" onclick="showTab('bangDuLieu')">Bảng dữ liệu</button>
   </div>
 
   <div class="container">
 
-    <!-- ===== GIÁM SÁT ===== -->
-    <div id="monitor">
-      <div class="row">
-        <div class="card">
-          <h3>🌡 Nhiệt độ</h3>
-          <div class="value"><span id="temp">0</span> °C</div>
-        </div>
+    <!-- ================= GIÁM SÁT ================= -->
+    <div id="giamSat">
 
-        <div class="card">
-          <h3>💧 Độ ẩm</h3>
-          <div class="value"><span id="humi">0</span> %</div>
+      <div class="section">
+        <div class="section-title">🌡️ MÔI TRƯỜNG</div>
+        <div class="cards">
+          <div class="card">
+            <div>Nhiệt độ</div>
+            <span class="value" id="temp">0 °C</span>
+          </div>
+          <div class="card">
+            <div>Độ ẩm</div>
+            <span class="value" id="humi">0 %</span>
+          </div>
         </div>
       </div>
 
-      <br>
-
-      <div class="card">
-        <h3>⚙️ Điều khiển (TEST)</h3>
-        <button class="btn on" onclick="control('gate',1)">Mở cổng</button>
-        <button class="btn off" onclick="control('gate',0)">Đóng cổng</button>
-
-        <button class="btn on" onclick="control('pump',1)">Bật quạt</button>
-        <button class="btn off" onclick="control('pump',0)">Tắt quạt</button>
+      <div class="section">
+        <div class="section-title">🐔 GÀ HIỆN TẠI</div>
+        <div class="card">
+          <div>
+            ID: — <br />
+            Trạng thái: Chưa có dữ liệu
+          </div>
+          <span class="value">0 Kg</span>
+        </div>
       </div>
+
+      <div class="section">
+        <div class="section-title">⚠️ CẢNH BÁO</div>
+        <div class="warning">
+          ✔️ Tất cả bình thường <br />
+          Không có cảnh báo nào lúc này
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">📈 BIỂU ĐỒ TĂNG TRƯỞNG</div>
+        <select>
+          <option>-- Chọn gà --</option>
+        </select>
+      </div>
+
     </div>
 
-    <!-- ===== BẢNG DỮ LIỆU ===== -->
-    <div id="table" class="hidden">
-      <div class="card">
-        <h3>📋 Bảng dữ liệu</h3>
+    <!-- ================= BẢNG DỮ LIỆU ================= -->
+    <div id="bangDuLieu" class="hidden">
+
+      <div class="section">
+        <div class="table-actions">
+          <button class="btn-green">Xuất Excel</button>
+          <button class="btn-red">Xóa dữ liệu</button>
+        </div>
+
+        <input type="text" placeholder="Tìm theo ID gà (VD: GA001)" />
+
         <table>
           <thead>
             <tr>
-              <th>Thời gian</th>
-              <th>Nhiệt độ (°C)</th>
-              <th>Độ ẩm (%)</th>
+              <th>Ngày giờ</th>
+              <th>ID Gà</th>
+              <th>Cân nặng (kg)</th>
+              <th>Hướng</th>
               <th>Trạng thái</th>
             </tr>
           </thead>
-          <tbody id="tableBody">
+          <tbody>
             <tr>
-              <td colspan="4">Chưa có dữ liệu</td>
+              <td colspan="5">Chưa có dữ liệu</td>
             </tr>
           </tbody>
         </table>
+
       </div>
+
     </div>
 
   </div>
 
   <script>
-    const SERVER = "https://esp32-render-server-p8o1.onrender.com";
+    function showTab(tab) {
+      document.getElementById("giamSat").classList.add("hidden");
+      document.getElementById("bangDuLieu").classList.add("hidden");
 
-    function showMonitor() {
-      document.getElementById("monitor").classList.remove("hidden");
-      document.getElementById("table").classList.add("hidden");
-      btnMonitor.classList.add("active");
-      btnTable.classList.remove("active");
-    }
+      document.getElementById("btnGiamSat").classList.remove("active");
+      document.getElementById("btnBangDuLieu").classList.remove("active");
 
-    function showTable() {
-      document.getElementById("monitor").classList.add("hidden");
-      document.getElementById("table").classList.remove("hidden");
-      btnMonitor.classList.remove("active");
-      btnTable.classList.add("active");
-    }
-
-    async function loadData() {
-      try {
-        const res = await fetch(SERVER + "/data");
-        const data = await res.json();
-
-        document.getElementById("temp").innerText = data.temp;
-        document.getElementById("humi").innerText = data.humi;
-      } catch (e) {
-        console.log("Lỗi lấy dữ liệu");
+      if (tab === "giamSat") {
+        document.getElementById("giamSat").classList.remove("hidden");
+        document.getElementById("btnGiamSat").classList.add("active");
+      } else {
+        document.getElementById("bangDuLieu").classList.remove("hidden");
+        document.getElementById("btnBangDuLieu").classList.add("active");
       }
     }
-
-    function control(device, value) {
-      fetch(`${SERVER}/control?${device}=${value}`);
-    }
-
-    setInterval(loadData, 2000);
-    loadData();
   </script>
 
 </body>
