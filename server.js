@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 
-// Render / Node dùng PORT động
+// Render dùng PORT động
 const PORT = process.env.PORT || 10000;
 
 // Cho phép đọc JSON
@@ -26,31 +26,29 @@ app.get("/", (req, res) => {
 });
 
 // =====================
-// ESP32 GỬI DỮ LIỆU LÊN
-// =====================
-app.post("/update", (req, res) => {
-  const { temp, humi, gate, pump, led } = req.body;
-
-  if (temp !== undefined) systemData.temp = temp;
-  if (humi !== undefined) systemData.humi = humi;
-  if (gate !== undefined) systemData.gate = gate;
-  if (pump !== undefined) systemData.pump = pump;
-  if (led !== undefined) systemData.led = led;
-
-  console.log("Update from ESP32:", systemData);
-
-  res.json({ status: "ok", data: systemData });
-});
-
-// =====================
-// WEB / ESP32 LẤY DỮ LIỆU
+// ESP32 GET DATA
 // =====================
 app.get("/data", (req, res) => {
   res.json(systemData);
 });
 
 // =====================
-// ĐIỀU KHIỂN TỪ WEB
+// ESP32 UPDATE SENSOR
+// =====================
+app.post("/update", (req, res) => {
+  const { temp, humi } = req.body;
+
+  if (temp !== undefined) systemData.temp = temp;
+  if (humi !== undefined) systemData.humi = humi;
+
+  res.json({
+    status: "OK",
+    data: systemData
+  });
+});
+
+// =====================
+// CONTROL THIẾT BỊ
 // =====================
 app.get("/control", (req, res) => {
   const { gate, pump, led } = req.query;
@@ -59,17 +57,15 @@ app.get("/control", (req, res) => {
   if (pump !== undefined) systemData.pump = Number(pump);
   if (led !== undefined) systemData.led = Number(led);
 
-  console.log("Control update:", systemData);
-
   res.json({
-    status: "ok",
+    status: "UPDATED",
     data: systemData
   });
 });
 
 // =====================
-// SERVER START
+// START SERVER
 // =====================
 app.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+  console.log(`Server running on port ${PORT}`);
 });
