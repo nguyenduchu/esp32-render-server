@@ -1,1 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giám sát & Điều khiển Tủ sấy</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <h1 class="title">GIÁM SÁT VÀ ĐIỀU KHIỂN TỦ SẤY MẪU CỠ NHỎ</h1>
 
+  <div class="tabs">
+    <button class="tab-button active" onclick="openTab(0)">GIÁM SÁT</button>
+    <button class="tab-button" onclick="openTab(1)">ĐIỀU KHIỂN</button>
+    <button class="tab-button" onclick="openTab(2)">LỊCH SỬ</button>
+  </div>
+
+  <!-- GIÁM SÁT -->
+  <div id="tab0" class="tab-content active">
+    <div class="info-box">
+      <p><strong>Nhiệt độ:</strong> <span id="temp">-- °C</span></p>
+      <p><strong>Khối lượng TB:</strong> <span id="weight">-- g</span></p>
+      <p><strong>Chế độ:</strong> <span id="mode">---</span></p>
+      <p><strong>Trạng thái:</strong> <span id="status">---</span></p>
+      <p><strong>Nhiệt độ đặt:</strong> <span id="targetTemp">-- °C</span></p>
+    </div>
+    <canvas id="myChart" height="400"></canvas>
+  </div>
+
+  <!-- ĐIỀU KHIỂN -->
+  <div id="tab1" class="tab-content">
+    <div class="control-grid">
+      <div class="control-box">
+        <h3>CHẾ ĐỘ</h3>
+        <button onclick="setMode('auto')" class="btn-auto">Set AUTO</button>
+        <button onclick="setMode('manual')" class="btn-manual">Set MANUAL</button>
+      </div>
+
+      <div class="control-box">
+        <h3>AUTO</h3>
+        <label>Thời gian sấy (phút):</label><br>
+        <input type="number" id="dryTime" value="60" min="1"><br><br>
+        <button onclick="startAuto()">BẬT AUTO</button>
+        <button onclick="stopSystem()" class="red">TẮT</button>
+      </div>
+
+      <div class="control-box">
+        <h3>MANUAL</h3>
+        <label>Nhiệt độ cài đặt (°C):</label><br>
+        <input type="number" id="manualTemp" value="105" step="0.5"><br><br>
+        <button onclick="startManualHeater()">BẬT Heater</button>
+        <button onclick="stopManualHeater()" class="red">TẮT Heater</button><br><br>
+        <button onclick="toggleFan(true)">BẬT Quạt</button>
+        <button onclick="toggleFan(false)" class="red">TẮT Quạt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LỊCH SỬ -->
+  <div id="tab2" class="tab-content">
+    <table id="historyTable">
+      <thead>
+        <tr>
+          <th>Thời gian</th>
+          <th>Nhiệt độ (°C)</th>
+          <th>Khối lượng (g)</th>
+          <th>Chế độ</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
