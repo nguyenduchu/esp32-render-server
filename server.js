@@ -1,94 +1,98 @@
-const express = require("express");
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+
 const app = express();
+const PORT = process.env.PORT || 3000; 
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.static('public'));
 
-// =======================
-// PORT cho Render
-// =======================
-const PORT = process.env.PORT || 10000;
-
-// =======================
-// Middleware
-// =======================
-app.use(express.json());
-
-// Cho phép load index.html
-app.use(express.static(__dirname));
-
-// =======================
-// DATA LƯU TRẠNG THÁI HỆ THỐNG
-// =======================
-let systemData = {
-  temp: 0,
-  humi: 0,
-  gate: 0, // 0 = đóng | 1 = mở
-  pump: 0, // 0 = tắt | 1 = bật
-  led: 0   // 0 = tắt | 1 = bật
+let currentData = {
+  temperature: 0,
+  weight: 0,
+  mode: 'auto',
+  programState: false,
+  fanState: false,
+  heaterState: false,
+  heaterTempTarget: 45,
+  dryTime: 0,
+  lastUpdate: new Date()
 };
 
-// =======================
-// TRANG CHỦ
-// =======================
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
+let history = [];
+
+// Tạo thư mục data nếu chưa có
+const dataDir = path.join(__dirname, 'data');
+const historyPath = path.join(dataDir, 'history.json');
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+if (fs.existsSync(historyPath)) {
+  history = JSON.parse(fs.readFileSync(historyPath));
+}
+
+// Keep alive cho Render Free
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong - Server is alive!');
+  console.log('✅ Ping received at', new Date().toLocaleString('vi-VN'));
 });
 
-// =======================
-// ESP32 / WEB ĐỌC DATA
-// =======================
-app.get("/data", (req, res) => {
-  res.json(systemData);
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', ...currentData });
 });
 
-// =======================
-// WEB / ESP32 GỬI LỆNH ĐIỀU KHIỂN
-// Ví dụ:
-// /control?led=1
-// /control?pump=0
-// =======================
-app.get("/control", (req, res) => {
+// Nhận dữ liệu từ Arduino
+app.post('/data_receiver.php', (req, res) => {
+  const { cambien1, cambien2, action, temperature } = req.body;
 
-  if (req.query.led !== undefined) {
-    systemData.led = Number(req.query.led);
+  if (action === 'manual_temp') {
+    currentData.temperature = parseFloat(temperature) || currentData.temperature;
+  } else {
+    currentData.temperature = parseFloat(cambien1) || 0;
+    currentData.weight = parseFloat(cambien2) || 0;
   }
 
-  if (req.query.pump !== undefined) {
-    systemData.pump = Number(req.query.pump);
-  }
+  currentData.lastUpdate = new Date();
+  history.push({ ...currentData, timestamp: new Date().toISOString() });
 
-  if (req.query.gate !== undefined) {
-    systemData.gate = Number(req.query.gate);
-  }
+  if (history.length > 500) history.shift();
+  fs.writeFileSync(historyPath, JSON.stringify(history, null, 2));
 
-  res.json({
-    status: "OK",
-    systemData
-  });
+  res.send('success');
 });
 
-// =======================
-// ESP32 GỬI SENSOR LÊN
-// Ví dụ:
-// /update?temp=30&humi=80
-// =======================
-app.get("/update", (req, res) => {
+// Điều khiển từ Arduino (manual.php)
+app.post('/manual.php', (req, res) => {
+  const { action, state, fan, heater_temp, heater } = req.body;
 
-  if (req.query.temp !== undefined) {
-    systemData.temp = Number(req.query.temp);
+  if (action === 'program') {
+    currentData.programState = state === 'on';
+    currentData.fanState = fan === 'on';
+  } else if (action === 'fan') {
+    currentData.fanState = state === 'on';
+  } else if (action === 'heater') {
+    currentData.heaterState = state === 'on';
+    if (heater_temp) currentData.heaterTempTarget = parseFloat(heater_temp);
   }
-
-  if (req.query.humi !== undefined) {
-    systemData.humi = Number(req.query.humi);
-  }
-
-  res.json({
-    status: "UPDATED",
-    systemData
-  });
+  res.send('success');
 });
 
-// =======================
-// START SERVER
-// =======================
+// API cho Web Dashboard
+app.get('/api/status', (req, res) => res.json(currentData));
+app.get('/api/history', (req, res) => res.json(history));
+
+app.post('/api/control', (req, res) => {
+  Object.assign(currentData, req.body);
+  console.log('Control from web:', req.body);
+  res.json({ success: true });
+});
+
 app.listen(PORT, () => {
-  console.log("ESP32 Render Server running on port", PORT);
+  console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
+  console.log(`🌐 Mở dashboard: http://localhost:${PORT}`);
 });
